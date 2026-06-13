@@ -18,7 +18,12 @@ from src.core.exceptions.custom_exception import (
 )
 from src.data.repositories.user_repository import UserRepository
 from src.data.repositories.user_session_repository import UserSessionRepository
-from src.schemas.auth_schemas import LoginRequest, LoginResponse, LoginServiceResponse
+from src.schemas.auth_schemas import (
+    LoginRequest,
+    LoginResponse,
+    LoginServiceResponse,
+    RefreshTokenResponse,
+)
 
 logger = logging.getLogger(__name__)
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -108,10 +113,8 @@ class AuthService:
             refresh_token=refresh_token,
         )
 
-    async def refresh(self, refresh_token: str | None) -> dict | None:
+    async def refresh(self, refresh_token: str) -> RefreshTokenResponse:
         """Refresh access and refresh tokens with validation."""
-        if refresh_token is None:
-            return None
         try:
             payload = jwt.decode(
                 refresh_token,
@@ -160,10 +163,10 @@ class AuthService:
 
             logger.info("Token refreshed successfully")
 
-            return {
-                "access_token": new_access_token,
-                "refresh_token": new_refresh_token,
-            }
+            return RefreshTokenResponse(
+                access_token=new_access_token,
+                refresh_token=new_refresh_token,
+            )
 
         except ExpiredSignatureError as err:
             logger.warning("Refresh token has expired")

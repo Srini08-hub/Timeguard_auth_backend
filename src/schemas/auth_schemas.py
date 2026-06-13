@@ -25,4 +25,5 @@ class LoginServiceResponse(BaseModel):
 
 
 class RefreshTokenResponse(BaseModel):
-    message: str = "Tokens refreshed successfully"
+    access_token: str
+    refresh_token: str
