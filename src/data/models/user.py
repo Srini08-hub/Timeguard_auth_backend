@@ -12,7 +12,7 @@ from src.data.models.base import Base
 
 class UserRole(StrEnum):
     admin = "admin"
-    operation_manager = "operation_manager"
+    OpsAdmin = "OpsAdmin"
     reviewer = "reviewer"
 
 
