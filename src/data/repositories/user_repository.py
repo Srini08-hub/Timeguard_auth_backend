@@ -92,14 +92,40 @@ class UserRepository:
         except SQLAlchemyError as err:
             raise DatabaseException("Failed to activate user") from err
 
-    async def user_exists_by_email(self, email: str) -> bool:
-        """Check if a user exists by email."""
+    # async def user_exists_by_email(self, email: str) -> bool:
+    #     """Check if a user exists by email."""
+    #     try:
+    #         query = select(User).where(User.email == email)
+    #         result = await self.db.execute(query)
+    #         return result.scalar_one_or_none() is not None
+    #     except SQLAlchemyError as err:
+    #         raise DatabaseException("Failed to check user existence") from err
+
+    async def update_user(
+        self,
+        user_id: uuid.UUID,
+        name: str | None = None,
+        email: str | None = None,
+        role: UserRole | None = None,
+        is_active: bool | None = None,
+    ) -> User | None:
+        """Update a user by user_id."""
         try:
-            query = select(User).where(User.email == email)
-            result = await self.db.execute(query)
-            return result.scalar_one_or_none() is not None
+            user = await self.get_user_by_id(user_id)
+            if not user:
+                return None
+            if name is not None:
+                user.name = name
+            if email is not None:
+                user.email = email
+            if role is not None:
+                user.role = role
+            if is_active is not None:
+                user.is_active = is_active
+            await self.db.flush()
+            return user
         except SQLAlchemyError as err:
-            raise DatabaseException("Failed to check user existence") from err
+            raise DatabaseException("Failed to update user") from err
 
     async def delete_user(self, user_id: uuid.UUID) -> bool:
         """Delete a user by user_id."""

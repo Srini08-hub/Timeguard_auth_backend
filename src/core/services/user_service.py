@@ -85,20 +85,15 @@ class UserService:
 
     async def update_user(self, user_id: UUID, payload: UserUpdate) -> UserResponse:
         """Update user details."""
-        user = await self.user_repository.get_user_by_id(user_id)
+        user = await self.user_repository.update_user(
+            user_id=user_id,
+            name=payload.name,
+            email=payload.email,
+            role=payload.role,
+            is_active=payload.is_active,
+        )
         if not user:
             raise ResourceNotFound("User not found")
-
-        if payload.name is not None:
-            user.name = payload.name
-        if payload.email is not None:
-            user.email = payload.email
-        if payload.role is not None:
-            user.role = payload.role
-        if payload.is_active is not None:
-            user.is_active = payload.is_active
-
-        await self.user_repository.db.flush()
 
         return UserResponse(
             user_id=str(user.user_id),
